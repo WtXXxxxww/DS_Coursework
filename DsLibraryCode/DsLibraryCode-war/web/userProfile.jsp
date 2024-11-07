@@ -201,6 +201,7 @@
             </div>
         </section>
     </div>
+<li><a href="LogoutServlet">Logout</a></li>
 </body>
 </html>
 
