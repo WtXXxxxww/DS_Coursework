@@ -226,7 +226,7 @@
 
         </section>
     </main>
-
+<a href="user-servlet?action=viewProfile">UserProfile</a>
 </body>
 </html>
 
