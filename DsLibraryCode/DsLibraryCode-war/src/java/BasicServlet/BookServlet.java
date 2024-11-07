@@ -52,6 +52,7 @@ public class BookServlet extends HttpServlet {
             List<Book> books = bookDAO.getAllBooks();
             request.setAttribute("books", books);
             request.getRequestDispatcher("/books.jsp").forward(request, response); 
+            response.sendRedirect("user-servlet?action=viewProfile");
         }  
     }
      
@@ -83,9 +84,8 @@ public class BookServlet extends HttpServlet {
                 // 更新用户信息
                 user = userDAO.getUserById(userId);
             }
-        }
-        
-        // 跳转到用户界面未实现
+        }       
+        // 跳转到用户界面
         response.sendRedirect("user-servlet?action=viewProfile");
     }
     
