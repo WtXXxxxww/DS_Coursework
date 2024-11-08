@@ -19,11 +19,15 @@
             line-height: 1.6;
         }
         .header {
+            position: sticky;
+            top:0;
             background-color: #fff;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             padding: 10px 20px;
         }
         .header-content {
+            position: sticky;
+            top:0;
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
@@ -31,19 +35,27 @@
             align-items: center;
         }
         .logo {
+            position: sticky;
+            top:0;
             display: flex;
             align-items: center;
         }
         .logo img {
+            position: sticky;
+            top:0;
             width: 32px;
             height: 32px;
             margin-right: 10px;
         }
         .logo h1 {
+            position: sticky;
+            top:0;
             font-size: 18px;
             color: #333;
         }
         .search-bar {
+            position: sticky;
+            top:0;
             display: flex;
             align-items: center;
             background-color: #f0f2f5;
@@ -51,6 +63,8 @@
             padding: 5px 15px;
         }
         .search-bar input {
+            position: sticky;
+            top:0;
             border: none;
             background: transparent;
             padding: 5px;
@@ -58,10 +72,14 @@
             font-size: 14px;
         }
         .nav {
+            position: sticky;
+            top:20px;
             display: flex;
             gap: 20px;
         }
         .nav a {
+            position: sticky;
+            top:20px;
             color: #666;
             text-decoration: none;
             font-size: 14px;
@@ -166,7 +184,7 @@
         <div class="header-content">
             <div class="logo">
                 <img src="https://via.placeholder.com/32" alt="微信读书logo">
-                <h1>微信读书</h1>
+                <h1>G2 library</h1>
             </div>
             <div class="search-bar">
                 <form action="book-servlet" method="get">
@@ -175,11 +193,8 @@
                 </form>
             </div>
             <nav class="nav">
-                <a href="#">首页</a>
-                <a href="#">传书到手机</a>
-                <a href="#">墨水屏版</a>
-                <a href="#">手机版</a>
-                <a href="#">登录</a>
+                <a href="#">Home</a>
+                <a href="user-servlet?action=viewProfile" class="nav-item">My Account</a> 
             </nav>
         </div>
     </header>
@@ -187,23 +202,19 @@
     <main class="main-content">
         <!-- 左侧分类导航 -->
         <aside class="sidebar">
-            <h2>图书分类</h2>
+            <h2>Classified navigation</h2>
             <ul>
-                <li><a href="#" class="active">全部</a></li>
-                <li><a href="#">科幻</a></li>
-                <li><a href="#">历史</a></li>
-                <li><a href="#">诗歌</a></li>
-                <li><a href="#">工具书</a></li>
-                <li><a href="#">小说</a></li>
-                <li><a href="#">传记</a></li>
-                <li><a href="#">经济</a></li>
-                <li><a href="#">心理学</a></li>
+                <li><a href="book-servlet?action=&genre=All" class="${empty param.genre || param.genre == 'All' ? 'active' : ''}">All</a></li>
+                <li><a href="book-servlet?action=&genre=Science fiction" class="${param.genre == 'Science fiction' ? 'active' : ''}">Science fiction</a></li>
+                <li><a href="book-servlet?action=&genre=Historical" class="${param.genre == 'Historical' ? 'active' : ''}">Historical</a></li>
+                <li><a href="book-servlet?action=&genre=Fantasy" class="${param.genre == 'Fantasy' ? 'active' : ''}">Fantasy</a></li>
+                <li><a href="book-servlet?action=&genre=Realistic" class="${param.genre == 'Realistic' ? 'active' : ''}">Realistic</a></li>
             </ul>
         </aside>
 
         <!-- 书籍展示区 -->
         <section class="book-list">
-            <h2>图书列表</h2>
+            <h2>Book List</h2>
 
             <c:forEach var="book" items="${books}">
                 <div class="book-item">
@@ -226,7 +237,7 @@
 
         </section>
     </main>
-<a href="user-servlet?action=viewProfile">UserProfile</a>
+
 </body>
 </html>
 
