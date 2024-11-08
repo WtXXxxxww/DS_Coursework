@@ -5,6 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Information</title>
     <style>
+        .header {
+            position: sticky;
+            top:0;
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+        .header-content {
+            position: sticky;
+            top:0;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            position: sticky;
+            top:0;
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+        .logo h1 {
+            font-size: 18px;
+            color: #333;
+        }
+        .search-bar {
+            position: sticky;
+            top:0;
+            display: flex;
+            align-items: center;
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            padding: 5px 15px;
+        }
+        .search-bar input {
+            position: sticky;
+            top:0;
+            border: none;
+            background: transparent;
+            padding: 5px;
+            width: 200px;
+            font-size: 14px;
+        }
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -14,32 +63,15 @@
             padding: 0;
         }
         .nav {
-            background-color: #2c3e50;
-            padding: 10px 20px;
             position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
+            top:0;
             display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
+            gap: 20px;
         }
-        .nav ul li {
-            margin: 5px 0;
-        }
-        .nav ul li a {
-            color: white;
+        .nav a {
+            color: #666;
             text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .nav ul li a:hover {
-            background-color: #34495e;
+            font-size: 14px;
         }
         .book-card {
             background-color: #fff;
@@ -48,17 +80,25 @@
             max-width: 1000px;
             margin: 40px auto;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .book-info {
             padding: 30px;
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
         }
         .book-cover {
-            width: 100%;
-            max-width: 400px;
+            width: 250px;
             height: auto;
             display: block;
-            margin: 0 auto 20px;
+            margin: 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            align-self: flex-start;
+        }
+        .book-details {
+            flex: 1;
         }
         h1 {
             margin: 0 0 15px;
@@ -122,41 +162,105 @@
         .book-description {
             background-color: #f9f9f9;
             padding: 25px;
-            border-radius: 8px;
-            margin-top: 30px;
+            border-radius: 0 0 8px 8px;
             font-size: 1.1em;
             line-height: 1.8;
         }
-        @media (min-width: 768px) {
-            .book-card {
-                display: flex;
-            }
-            .book-cover {
-                max-width: 400px;
-                margin: 0;
-                object-fit: cover;
-                object-position: center;
-            }
-            .book-info {
-                flex: 1;
-            }
+        .comments-section {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .comment {
+            display: flex;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .comment-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .comment-user {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .comment-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .comment-text {
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        .comment-rating {
+            color: #f39c12;
+            margin-right: 10px;
+        }
+
+        .comment-helpful {
+            color: #3498db;
+            font-size: 0.9em;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .star-rating {
+            color: #f1c40f;
+        }
+
+        .location-badge {
+            background-color: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <nav class="nav">
-        <ul>
-            <li><a href="#">????</a></li>
-            <li><a href="user-servlet?action=viewProfile">????</a></li>  
-            <li><a href="#">????</a></li>
-            <li><a href="#">?????</a></li>
-        </ul>
-    </nav>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="https://via.placeholder.com/32" alt="????logo">
+                <h1>G2 library</h1>
+            </div>
+            <div class="search-bar">
+                <form action="book-servlet" method="get">
+                    <input type="text" id="bookInfo" name="bookInfo" placeholder="Enter book title or author" required="false">
+                    <input type="submit" value="Search">
+                </form>
+            </div>
+            <nav class="nav">
+                <a href="#">Home</a>
+                <a href="user-servlet?action=viewProfile" class="nav-item">My Account</a> 
+            </nav>
+        </div>
+    </header>
 
     <div class="book-card">
-        <img src="${book.coverImage}" alt="${book.title} Cover" class="book-cover">
         <div class="book-info">
-            <h1>${book.title}</h1>
+            <img src="${book.coverImage}" alt="${book.title} Cover" class="book-cover">
+            <div class="book-details">
+                <h1>${book.title}</h1>
             <p class="author">${book.author}</p>
             <dl class="details">
                 <dt>Language:</dt>
@@ -165,20 +269,50 @@
                 <dd>${book.genre}</dd>
                 <dt>Published:</dt>
                 <dd>${book.publishDate}</dd>
-            </dl>
-            <div class="price-availability">
-                <p class="price">Price: ${book.price}</p>
-                <p class="availability">Available: ${book.availableQuantity} copies</p>
-            </div>
-            <div class="buttons">
-                <button class="btn btn-primary">Buy</button>
-                <button class="btn btn-secondary">Borrow</button>
-            </div>
-            <div class="book-description">
-                <h2>Book Description</h2>
-                <p>${book.description}</p>
+                </dl>
+                <div class="price-availability">
+                    <p class="price">Price: ${book.price}</p>
+                    <p class="availability">Available: ${book.availableQuantity} copies</p>
+                </div>
+                <div class="buttons">
+                    <form action="book-servlet" method="post">
+                        <input type="hidden" name="action" value="buy">
+                        <input type="hidden" name="bookId" value="${book.id}">
+                        <button type="submit" class="btn btn-primary">Buy</button>
+                    </form>
+                
+                    <!-- Borrow button with form -->
+                    <form action="book-servlet" method="post">
+                        <input type="hidden" name="action" value="borrow">
+                        <input type="hidden" name="bookId" value="${book.id}">
+                        <button type="submit" class="btn btn-secondary">Borrow</button> 
+                    </form>
+                </div>
             </div>
         </div>
+        <div class="book-description">
+            <h2>Book Description</h2>
+                <p>${book.description}</p>
+        </div>
     </div>
+    <div class="comments-section">
+        <h2>????</h2>
+        <div class="comment">
+            <img src="https://via.placeholder.com/50" alt="User Avatar" class="comment-avatar">
+            <div class="comment-content">
+                <div class="comment-header">
+                    <div>
+                        <span class="comment-user">???</span>
+                        <span class="star-rating">?????</span>
+                    </div>
+                    <div class="comment-meta">
+                        <span class="location-badge">??</span>
+                        <span>2024-01-05 15:30</span>
+                    </div>
+                </div>
+                <p class="comment-text">??????????????????????????????????????????????????????????????????????????????????????????</p>
+                <div class="comment-helpful">741 ??</div>
+            </div>
+        </div>
 </body>
 </html>
