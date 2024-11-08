@@ -53,21 +53,18 @@ public class RegisterServlet extends HttpServlet {
         AsymmetricCryptoSystem cryptoSystem = new AsymmetricCryptoSystem();
         
         try (PrintWriter out = response.getWriter()) {
-            byte[] passwordBytes = password.getBytes("UTF-8");
-            byte[] encryptedPassword = cryptoSystem.encrypt(cryptoSystem.getPublicKey(), passwordBytes);
-            String encryptedPasswordStr = Base64.getEncoder().encodeToString(encryptedPassword);
+            String encryptedPassword = cryptoSystem.hashPassword(password);
 
-            // 存储密钥（如果需要）
-            cryptoSystem.storeKeysInDB(username, encryptedPasswordStr);
+            // 为每个用户存储一对密钥（如果需要）
+            cryptoSystem.storeKeysInDB(username, encryptedPassword);
 
             // 创建 NewWebService 实例并调用注册方法
             UserWebService service = new UserWebService();
-            String result = service.RegisterUser(username, password, email, role);
+            String result = service.RegisterUser(username, encryptedPassword, email, role);
             
             // 在控制台打印注册结果
             System.out.println("RegisterServlet - Registration result: " + result);
-
-            System.out.println("RegisterServlet - Registration result: " + result);
+            
             // 根据注册结果进行反馈
             if (result.contains("User registered successfully")) {
                 out.println("<!DOCTYPE html>");

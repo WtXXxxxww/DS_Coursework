@@ -48,6 +48,16 @@ public class AsymmetricCryptoSystem {
     private static final String DB_URL = "jdbc:mysql://bj-cynosdbmysql-grp-3uoflkim.sql.tencentcdb.com:20820/library?autoReconnect=true&useSSL=false";
     private static final String USER = "root";
     private static final String PASS = "Ds123456";
+    
+    static {  
+        try {  
+            // 注册 MySQL JDBC 驱动  
+            Class.forName("com.mysql.cj.jdbc.Driver");  
+        } catch (ClassNotFoundException e) {  
+            e.printStackTrace();  
+            throw new RuntimeException("MySQL JDBC Driver not found.");  
+        }  
+    }
 
     /*Default constrctor*/
     public AsymmetricCryptoSystem() throws NoSuchAlgorithmException, NoSuchProviderException {
@@ -165,6 +175,30 @@ public class AsymmetricCryptoSystem {
     }
     
     /**
+     * 使用bcrypt哈希算法对密码进行哈希处理。
+     *
+     * @param password 要哈希的密码。
+     * @return 哈希后的密码字符串。
+     */
+    public String hashPassword(String password) {
+        // 生成盐值并哈希密码
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        return hashedPassword;
+    }
+ 
+    /**
+     * 验证提供的密码是否与存储的哈希密码匹配。
+     *
+     * @param plainPassword 用户输入的明文密码。
+     * @param hashedPassword 存储的哈希密码。
+     * @return 如果密码匹配，则返回true；否则返回false。
+     */
+    public boolean checkPassword(String plainPassword, String hashedPassword) {
+        // 验证密码
+        return BCrypt.checkpw(plainPassword, hashedPassword);
+    }
+    
+    /**
      * 将公钥和私钥存储到数据库中。
      * @param userName 用户名称
      * @param encryptedPassword 加密的密码
@@ -231,6 +265,49 @@ public class AsymmetricCryptoSystem {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public String decryptPasswordFromDB(String userName) {
+        // 从数据库中检索加密密码
+        String encryptedPassword = null;
+        String sql = "SELECT encrypted_password FROM security WHERE user_name = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userName);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                encryptedPassword = rs.getString("encrypted_password");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        // 如果没有检索到加密密码，则返回null
+        if (encryptedPassword == null) {
+            return null;
+        }
+
+        // 从数据库中检索私钥
+        PrivateKey privateKey = getPrivateKeyFromDB(userName);
+        if (privateKey == null) {
+            return null;
+        }
+
+        // 将加密密码转换为字节数组
+        byte[] encryptedPasswordBytes = Base64.getDecoder().decode(encryptedPassword);
+
+        try {
+            // 使用私钥对加密密码进行解密
+            byte[] decryptedPasswordBytes = decrypt(privateKey, encryptedPasswordBytes);
+
+            // 将解密后的密码转换为字符串并返回
+            return new String(decryptedPasswordBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
      /**

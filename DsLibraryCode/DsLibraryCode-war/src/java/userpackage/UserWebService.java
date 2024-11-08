@@ -4,10 +4,16 @@
  */
 package userpackage;
 
+import encrypt.AsymmetricCryptoSystem;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import java.sql.*;  
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,7 +35,7 @@ public class UserWebService {
             throw new RuntimeException("MySQL JDBC Driver not found.");  
         }  
     }
-    
+        
     // 注册用户
     @WebMethod(operationName = "RegisterUser")
     public String RegisterUser(@WebParam(name = "username") String username,
@@ -72,32 +78,48 @@ public class UserWebService {
         return false;
     }
 
-    // 验证用户登录并检查角色
     @WebMethod(operationName = "ValidateUser")
     public boolean ValidateUser(@WebParam(name = "username") String username,
                                 @WebParam(name = "password") String password,
                                 @WebParam(name = "role") String role) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND role = ?";
+        String sql = "SELECT password, role FROM users WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            pstmt.setString(3, role); // 验证角色
 
+            pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
+
             if (rs.next()) {
-                // 更新 last_login 字段
-                String updateLastLogin = "UPDATE users SET last_login = NOW() WHERE username = ?";
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateLastLogin)) {
-                    updateStmt.setString(1, username);
-                    updateStmt.executeUpdate();
+                String storedHashPassword = rs.getString("password");
+                String storedRole = rs.getString("role");
+
+                // 验证角色
+                if (!role.equals(storedRole)) {
+                    return false;
                 }
-                return true; // 用户验证成功
+
+                // 创建加密系统实例
+                AsymmetricCryptoSystem cryptoSystem = new AsymmetricCryptoSystem();
+
+                // 验证密码
+                boolean passwordMatches = cryptoSystem.checkPassword(password, storedHashPassword);
+
+                if (passwordMatches) {
+                    // 更新 last_login 字段
+                    String updateLastLogin = "UPDATE users SET last_login = NOW() WHERE username = ?";
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateLastLogin)) {
+                        updateStmt.setString(1, username);
+                        updateStmt.executeUpdate();
+                    }
+                    return true; // 用户验证成功
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception ex) {
+            Logger.getLogger(UserWebService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return false;
+        return false; // 验证失败
     }
     
     // 更新用户设置的方法
