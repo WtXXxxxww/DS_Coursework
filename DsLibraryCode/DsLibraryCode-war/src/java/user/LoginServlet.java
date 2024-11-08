@@ -47,6 +47,9 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
+        
+        //密码加密
+        
 
         // 创建 UserWebService 实例并调用验证方法
         UserWebService service = new UserWebService();
