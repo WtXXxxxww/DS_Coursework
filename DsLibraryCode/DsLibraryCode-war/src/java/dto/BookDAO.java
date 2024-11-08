@@ -34,6 +34,45 @@ public class BookDAO {
         }  
     }  
     
+    public List<Book> getBooksByGenre(String genre) {
+        List<Book> books = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            // 建立数据库连接
+            conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+            // 编写SQL查询语句
+            String sql = "SELECT * FROM books WHERE genre = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, genre);
+
+            // 执行查询
+            resultSet = pstmt.executeQuery();
+
+            // 处理查询结果
+            while (resultSet.next()) {
+                Book book = new Book();
+                book.setId(resultSet.getInt("book_id"));
+                book.setTitle(resultSet.getString("title"));
+                book.setAuthor(resultSet.getString("author"));
+                book.setGenre(resultSet.getString("genre"));
+                book.setDescription(resultSet.getString("description"));
+                book.setPrice(BigDecimal.valueOf(Double.parseDouble(resultSet.getString("price"))));
+                book.setAvailableQuantity(Integer.valueOf(resultSet.getString("available_quantity")));
+                book.setPublishDate(resultSet.getDate("publish_date").toLocalDate());
+                book.setPublisher(resultSet.getString("publisher"));
+                book.setLanguage(resultSet.getString("language"));
+                book.setCoverImage(resultSet.getString("cover_image"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+    
     // 用于获取所有书籍并显示
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
@@ -52,48 +91,48 @@ public class BookDAO {
     
     // 用于根据名称模糊查询具体书籍
     public List<Book> searchBooksByTitleOrAuthor(String query) {
-    List<Book> books = new ArrayList<>();
-    String sql = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ?";
-    try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, "%" + query + "%");
-        statement.setString(2, "%" + query + "%");
-        ResultSet resultSet = statement.executeQuery();
-        while (resultSet.next()) {
-           addBooks(books,resultSet);
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ?";
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + query + "%");
+            statement.setString(2, "%" + query + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+               addBooks(books,resultSet);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return books;
+        return books;
     }
     
     public Book getBookById(int id) {
-    Book book = null;
-    try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
-        String sql = "SELECT * FROM books WHERE book_id = ?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setInt(1, id);
-        ResultSet resultSet = statement.executeQuery();
+        Book book = null;
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+            String sql = "SELECT * FROM books WHERE book_id = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
 
-        if (resultSet.next()) {
-            book = new Book();
-            book.setId(resultSet.getInt("book_id"));
-            book.setTitle(resultSet.getString("title"));
-            book.setAuthor(resultSet.getString("author"));
-            book.setGenre(resultSet.getString("genre"));
-            book.setDescription(resultSet.getString("description"));
-            book.setPrice(BigDecimal.valueOf(Double.parseDouble(resultSet.getString("price"))));
-            book.setAvailableQuantity(Integer.valueOf(resultSet.getString("available_quantity")));
-            book.setPublishDate(resultSet.getDate("publish_date").toLocalDate());
-            book.setPublisher(resultSet.getString("publisher"));
-            book.setLanguage(resultSet.getString("language"));
-            book.setCoverImage(resultSet.getString("cover_image"));
+            if (resultSet.next()) {
+                book = new Book();
+                book.setId(resultSet.getInt("book_id"));
+                book.setTitle(resultSet.getString("title"));
+                book.setAuthor(resultSet.getString("author"));
+                book.setGenre(resultSet.getString("genre"));
+                book.setDescription(resultSet.getString("description"));
+                book.setPrice(BigDecimal.valueOf(Double.parseDouble(resultSet.getString("price"))));
+                book.setAvailableQuantity(Integer.valueOf(resultSet.getString("available_quantity")));
+                book.setPublishDate(resultSet.getDate("publish_date").toLocalDate());
+                book.setPublisher(resultSet.getString("publisher"));
+                book.setLanguage(resultSet.getString("language"));
+                book.setCoverImage(resultSet.getString("cover_image"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return book;
+        return book;
 }
 
     
