@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package user;
-
 import userpackage.UserWebService;
 import java.io.IOException;
 import java.io.PrintWriter; 
@@ -12,6 +11,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import encrypt.AsymmetricCryptoSystem;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,9 +33,9 @@ public class RegisterServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, Exception {
         response.setContentType("text/html;charset=UTF-8");
-
+        
         // 获取用户提交的注册信息
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -45,15 +48,23 @@ public class RegisterServlet extends HttpServlet {
         System.out.println("Password: " + password);
         System.out.println("Email: " + email);
         System.out.println("Role: " + role);
-
-        // 创建 NewWebService 实例并调用注册方法
-        UserWebService service = new UserWebService();
-        String result = service.RegisterUser(username, password, email, role);
-
-        // 在控制台打印注册结果
-        System.out.println("RegisterServlet - Registration result: " + result);
-
+        
+        // 创建加密类实例
+        AsymmetricCryptoSystem cryptoSystem = new AsymmetricCryptoSystem();
+        
         try (PrintWriter out = response.getWriter()) {
+            String encryptedPassword = cryptoSystem.hashPassword(password);
+
+            // 为每个用户存储一对密钥（如果需要）
+            cryptoSystem.storeKeysInDB(username, encryptedPassword);
+
+            // 创建 NewWebService 实例并调用注册方法
+            UserWebService service = new UserWebService();
+            String result = service.RegisterUser(username, encryptedPassword, email, role);
+            
+            // 在控制台打印注册结果
+            System.out.println("RegisterServlet - Registration result: " + result);
+            
             // 根据注册结果进行反馈
             if (result.contains("User registered successfully")) {
                 out.println("<!DOCTYPE html>");
@@ -85,7 +96,11 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (Exception ex) {
+            Logger.getLogger(RegisterServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -99,7 +114,11 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (Exception ex) {
+            Logger.getLogger(RegisterServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
