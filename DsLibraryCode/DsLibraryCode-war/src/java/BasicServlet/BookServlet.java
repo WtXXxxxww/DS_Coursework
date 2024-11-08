@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import dto.BookDAO;
 import dto.User;
 import dto.UserDAO;
+import java.net.URLEncoder;
 import javax.servlet.http.HttpSession;
   
 @WebServlet(name = "BookServlet", urlPatterns = {"/book-servlet"})  
@@ -27,6 +28,7 @@ public class BookServlet extends HttpServlet {
         
         String action = request.getParameter("action");
         String bookInfo = request.getParameter("bookInfo");
+        String genre = request.getParameter("genre"); // 获取分类参数
         BookDAO bookDAO = new BookDAO();
 
         if ("view".equals(action)) {
@@ -47,10 +49,19 @@ public class BookServlet extends HttpServlet {
         } else if (bookInfo != null && !bookInfo.trim().isEmpty()) {
             // 如果接收到用户查询输入参数，处理请求并返回结果 
             processRequest(request, response);
+        } else if(genre != null && !genre.isEmpty() && !genre.equals("All")){
+            // 处理分类请求
+            List<Book> books = bookDAO.getBooksByGenre(genre);
+            request.setAttribute("books", books);
+            // 设置当前分类
+            request.setAttribute("currentGenre",genre);
+            request.getRequestDispatcher("/books.jsp").forward(request, response);
+            response.sendRedirect("user-servlet?action=viewProfile");
         } else {
             // 显示所有书籍信息
             List<Book> books = bookDAO.getAllBooks();
             request.setAttribute("books", books);
+            request.setAttribute("currentGenre", "All"); // 默认分类为All
             request.getRequestDispatcher("/books.jsp").forward(request, response); 
             response.sendRedirect("user-servlet?action=viewProfile");
         }  
@@ -70,23 +81,27 @@ public class BookServlet extends HttpServlet {
         User user;
         
         BookDAO bookDAO = new BookDAO();
-        UserDAO userDAO = new UserDAO();
-        
+        UserDAO userDAO = new UserDAO(); 
+
         if("buy".equals(action)){
             boolean success = userDAO.purchaseBook(userId, bookId);
             if(success){
-                // 更新用户信息
-                user = userDAO.getUserById(userId);
+                // 加购买成功弹窗
+                response.sendRedirect("popUp.jsp?message=" + URLEncoder.encode("Purchase successful!", "UTF-8"));
+            }else{
+                // 加购买失败弹窗
+                response.sendRedirect("popUp.jsp?message=" + URLEncoder.encode("Purchase failed", "UTF-8"));
             }
         }else if("borrow".equals(action)){
             boolean success = userDAO.borrowBook(userId, bookId);
             if(success){
-                // 更新用户信息
-                user = userDAO.getUserById(userId);
+                // 加借阅成功弹窗
+                response.sendRedirect("popUp.jsp?message=" + URLEncoder.encode("Borrow successful!", "UTF-8"));
+            }else{
+                // 加借阅失败弹窗
+                response.sendRedirect("popUp.jsp?message=" + URLEncoder.encode("Borrow failed", "UTF-8"));
             }
         }       
-        // 跳转到用户界面
-        response.sendRedirect("user-servlet?action=viewProfile");
     }
     
      protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  
